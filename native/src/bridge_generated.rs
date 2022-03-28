@@ -40,7 +40,23 @@ pub extern "C" fn wire_rust_release_mode(port_: i64) {
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_encode_message(port_: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "encode_message",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| Ok(encode_message()),
+    )
+}
+
 // Section: wire structs
+
+// Section: wrapper structs
+
+// Section: static checks
 
 // Section: allocate functions
 
@@ -77,6 +93,13 @@ impl<T> NewWithNullPtr for *mut T {
 
 // Section: impl IntoDart
 
+impl support::IntoDart for CborRPC {
+    fn into_dart(self) -> support::DartCObject {
+        vec![self.msg.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for CborRPC {}
+
 impl support::IntoDart for Platform {
     fn into_dart(self) -> support::DartCObject {
         match self {
@@ -107,3 +130,21 @@ pub extern "C" fn free_WireSyncReturnStruct(val: support::WireSyncReturnStruct) 
         let _ = support::vec_from_leak_ptr(val.ptr, val.len);
     }
 }
+
+    // ----------- DUMMY CODE FOR BINDGEN ----------
+
+    // copied from: allo-isolate
+    pub type DartPort = i64;
+    pub type DartPostCObjectFnType = unsafe extern "C" fn(port_id: DartPort, message: *mut std::ffi::c_void) -> bool;
+    #[no_mangle] pub unsafe extern "C" fn store_dart_post_cobject(ptr: DartPostCObjectFnType) { panic!("dummy code") }
+
+    // copied from: frb_rust::support.rs
+    #[repr(C)]
+    pub struct WireSyncReturnStruct {
+        pub ptr: *mut u8,
+        pub len: i32,
+        pub success: bool,
+    }
+
+    // ---------------------------------------------
+    

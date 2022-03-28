@@ -1,5 +1,4 @@
-use std::io::Read;
-use std::net::{TcpListener, TcpStream};
+use libipld::DagCbor;
 
 pub enum Platform {
     Unknown,
@@ -36,24 +35,14 @@ pub fn rust_release_mode() -> bool {
     cfg!(not(debug_assertions))
 }
 
-pub fn handle_connection(mut stream: TcpStream) {
-    if let Ok(val) = stream.read(&mut [0; 128]) {
-        println!("{:?}", val)
-    } else {
-        println!("Connection Failed")
-    }
+#[derive(Clone, DagCbor, Debug, Eq, PartialEq)]
+pub struct CborRPC {
+    msg: String,
 }
 
-pub fn main() -> std::io::Result<()> {
-    let listener = TcpListener::bind("127.0.0.1:80").unwrap();
-
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                handle_connection(stream);
-            }
-            Err(e) => { /* connection failed */ }
-        }
-    }
-    Ok(())
+pub fn encode_message() -> CborRPC {
+    let message = CborRPC {
+        msg: "Sup Bruh".to_string(),
+    };
+    message
 }

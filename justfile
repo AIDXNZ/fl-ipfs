@@ -3,7 +3,7 @@
 llvm_path := if os() == "macos" {
     "--llvm-path /opt/homebrew/opt/llvm"
 } else {
-    "C:/Users/asmai/llvm-project/llvm"
+    "/Users/asmai/llvm-project"
 }
 
 default: gen lint
